@@ -59,6 +59,7 @@ double quarterScreenWidth(BuildContext context) =>
 
 double getResponsiveHorizontalSpaceMedium(BuildContext context) =>
     screenWidthFraction(context, dividedBy: 10);
+
 double getResponsiveSmallFontSize(BuildContext context) =>
     getResponsiveFontSize(context, fontSize: 14, max: 15);
 
@@ -88,3 +89,5 @@ double getResponsiveFontSize(
 
   return responsiveSize;
 }
+
+EdgeInsets get defaultPadding => const EdgeInsets.all(16);

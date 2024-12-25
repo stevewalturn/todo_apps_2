@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
 import 'package:stacked/stacked.dart';
-
+import 'package:todo_apps_2/ui/common/app_colors.dart';
+import 'package:todo_apps_2/ui/common/ui_helpers.dart';
+import 'package:todo_apps_2/ui/widgets/todo_item.dart';
 import 'package:todo_apps_2/ui/views/home/home_viewmodel.dart';
 
 class HomeView extends StackedView<HomeViewModel> {
@@ -14,70 +15,39 @@ class HomeView extends StackedView<HomeViewModel> {
     Widget? child,
   ) {
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Gap(50),
-                Column(
-                  children: [
-                    const Text(
-                      'Hello from STEVE x STACKED!',
-                      style: TextStyle(
-                        fontSize: 35,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const Gap(25),
-                    MaterialButton(
-                      color: Colors.black,
-                      onPressed: viewModel.incrementCounter,
-                      child: Text(
-                        viewModel.counterLabel,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
+      appBar: AppBar(
+        title: const Text('Todo List'),
+      ),
+      body: viewModel.hasError
+          ? Center(
+              child: Text(
+                viewModel.modelError.toString(),
+                style: const TextStyle(color: kcErrorColor),
+              ),
+            )
+          : viewModel.todos.isEmpty
+              ? const Center(
+                  child: Text('No todos yet. Add one by tapping the + button!'),
+                )
+              : ListView.builder(
+                  itemCount: viewModel.todos.length,
+                  itemBuilder: (context, index) {
+                    final todo = viewModel.todos[index];
+                    return TodoItem(
+                      todo: todo,
+                      onToggle: () => viewModel.toggleTodoComplete(todo.id),
+                      onEdit: () => viewModel.navigateToEditTodo(todo.id),
+                      onDelete: () => viewModel.deleteTodo(todo.id),
+                    );
+                  },
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    MaterialButton(
-                      color: Colors.grey,
-                      onPressed: viewModel.showDialog,
-                      child: const Text(
-                        'Show Dialog',
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    MaterialButton(
-                      color: Colors.grey,
-                      onPressed: viewModel.showBottomSheet,
-                      child: const Text(
-                        'Show Bottom Sheet',
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: viewModel.navigateToCreateTodo,
+        child: const Icon(Icons.add),
       ),
     );
   }
 
   @override
-  HomeViewModel viewModelBuilder(
-    BuildContext context,
-  ) =>
-      HomeViewModel();
+  HomeViewModel viewModelBuilder(BuildContext context) => HomeViewModel();
 }
