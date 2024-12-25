@@ -1,7 +1,7 @@
 {
   "package_name": "com.yeah_well.todo_apps_2",
-  "project_description": "The Flutter application follows the Stacked architecture, featuring routing, dependency injection, and dialog/bottom sheet management. It includes a startup screen, a home screen with a counter, a dialog, and a bottom sheet. The application also integrates with Firebase for analytics tracking and supports localization and multiple flavors (development and production).",
-  "architecture_overview": "The application is structured using the Stacked architecture, which separates the concerns of the UI, view models, and services. It uses Stacked for state management, routing, and dependency injection. The main components include the App, AppView, and various feature-specific views and view models. The application also utilizes services for managing dialogs, bottom sheets, and navigation, as well as observing screen transitions for analytics purposes.",
+  "project_description": "A Flutter todo management application utilizing Stacked architecture with comprehensive CRUD functionality for todo items. The app supports creating, editing, deleting, and marking todos as complete. It features a modular design with separate views for todo creation, editing, and listing, integrating reactive state management, form validation, and a clean, responsive user interface.",
+  "architecture_overview": "The application implements a modular MVVM architecture using the Stacked framework, with clear separation of concerns between models, views, and view models. Key architectural components include reactive services, dependency injection via service locator, centralized state management, and a robust routing mechanism. The app leverages Stacked annotations for automatic code generation and dependency registration.",
   "files": [
     {
       "name": "lib/app/app.dart",
@@ -840,6 +840,312 @@
         "package:stacked/stacked.dart",
         "package:stacked_services/stacked_services.dart"
       ]
+    },
+    {
+      "name": "lib/ui/dialogs/confirm_delete/confirm_delete_dialog_model.dart",
+      "description": "A lightweight view model for a delete confirmation dialog, providing reactive state management using Stacked framework for confirming destructive actions in the user interface",
+      "class_diagram": "@startuml\nclass ConfirmDeleteDialogModel {\n}\n@enduml",
+      "methods": [
+        {
+          "name": "constructor",
+          "description": "Initialize the base view model for delete confirmation dialog",
+          "parameters": null,
+          "return_type": null
+        }
+      ],
+      "dependencies": [
+        "stacked/stacked.dart"
+      ]
+    },
+    {
+      "name": "lib/ui/views/todo/create_todo_view.dart",
+      "description": "A Flutter view for creating new todo items, providing a user interface with form inputs and error handling for todo creation",
+      "class_diagram": "@startuml\nclass CreateTodoView {\n  +builder(context, viewModel, child)\n  +viewModelBuilder(context)\n}\nclass CreateTodoViewModel {\n  +titleController\n  +descriptionController\n  +saveTodo()\n}\n@enduml",
+      "methods": [
+        {
+          "name": "builder",
+          "description": "Renders the UI for creating a new todo, including error display and todo form",
+          "parameters": [
+            "BuildContext",
+            "CreateTodoViewModel",
+            "Widget?"
+          ],
+          "return_type": "Widget"
+        },
+        {
+          "name": "viewModelBuilder",
+          "description": "Initializes and provides the view model for todo creation",
+          "parameters": [
+            "BuildContext"
+          ],
+          "return_type": "CreateTodoViewModel"
+        }
+      ],
+      "dependencies": [
+        "flutter/material.dart",
+        "stacked/stacked.dart",
+        "todo_apps_2/ui/common/app_colors.dart",
+        "todo_apps_2/ui/views/todo/create_todo_viewmodel.dart",
+        "todo_apps_2/ui/widgets/todo_form.dart"
+      ]
+    },
+    {
+      "name": "lib/ui/views/todo/edit_todo_view.dart",
+      "description": "A Flutter view for editing an existing todo item, providing a user interface and form to update todo details with validation and error handling",
+      "class_diagram": "@startuml\nclass EditTodoView {\n  -String todoId\n  +builder(BuildContext context, EditTodoViewModel viewModel)\n  +viewModelBuilder(BuildContext context)\n  +onViewModelReady(EditTodoViewModel viewModel)\n}\n@enduml",
+      "methods": [
+        {
+          "name": "builder",
+          "description": "Constructs the UI for editing a todo, displaying form and potential error messages",
+          "parameters": [
+            "BuildContext",
+            "EditTodoViewModel",
+            "Widget"
+          ],
+          "return_type": "Widget"
+        },
+        {
+          "name": "viewModelBuilder",
+          "description": "Creates the ViewModel for managing todo edit state and logic",
+          "parameters": [
+            "BuildContext"
+          ],
+          "return_type": "EditTodoViewModel"
+        },
+        {
+          "name": "onViewModelReady",
+          "description": "Initializes the todo editing process by loading existing todo details",
+          "parameters": [
+            "EditTodoViewModel"
+          ],
+          "return_type": null
+        }
+      ],
+      "dependencies": [
+        "flutter/material.dart",
+        "stacked/stacked.dart",
+        "todo_apps_2/ui/common/app_colors.dart",
+        "todo_apps_2/ui/views/todo/edit_todo_viewmodel.dart",
+        "todo_apps_2/ui/widgets/todo_form.dart"
+      ]
+    },
+    {
+      "name": "lib/ui/widgets/todo_form.dart",
+      "description": "A reusable form widget for creating or editing Todo items, providing a standardized interface for capturing title and description with built-in validation support",
+      "class_diagram": "@startuml\nclass TodoForm {\n  -TextEditingController titleController\n  -TextEditingController descriptionController\n  -String? titleError\n  -String? descriptionError\n  +build(BuildContext context)\n}\n@enduml",
+      "methods": [
+        {
+          "name": "build",
+          "description": "Constructs the UI for the Todo form with title, description fields, and submit button",
+          "parameters": [
+            "BuildContext context"
+          ],
+          "return_type": "Widget"
+        }
+      ],
+      "dependencies": [
+        "package:flutter/material.dart",
+        "package:todo_apps_2/ui/common/ui_helpers.dart"
+      ]
+    },
+    {
+      "name": "lib/ui/widgets/todo_item.dart",
+      "description": "A reusable UI widget for rendering individual todo list items with interactive capabilities for marking completion, editing, and deleting todos",
+      "class_diagram": "@startuml\nclass TodoItem {\n  +Todo todo\n  +VoidCallback onToggle\n  +VoidCallback onEdit\n  +VoidCallback onDelete\n  +Widget build(BuildContext context)\n}\n@enduml",
+      "methods": [
+        {
+          "name": "build",
+          "description": "Constructs the visual representation of a todo item with title, description, toggle, edit, and delete actions",
+          "parameters": [
+            "BuildContext context"
+          ],
+          "return_type": "Widget"
+        }
+      ],
+      "dependencies": [
+        "flutter/material.dart",
+        "todo_apps_2/models/todo.dart",
+        "todo_apps_2/ui/common/app_colors.dart",
+        "todo_apps_2/ui/common/ui_helpers.dart"
+      ]
+    },
+    {
+      "name": "lib/models/todo.dart",
+      "description": "Defines a Todo model representing a task or todo item in a task management application, with comprehensive state management and data serialization capabilities",
+      "class_diagram": "@startuml\nclass Todo {\n  +String id\n  +String title\n  +String description\n  +bool isCompleted\n  +DateTime createdAt\n  +DateTime? completedAt\n  +copyWith()\n  +toMap()\n  +fromMap()\n}\n@enduml",
+      "methods": [
+        {
+          "name": "copyWith",
+          "description": "Creates a new Todo instance with optional field updates, supporting immutable state modifications",
+          "parameters": [
+            "id",
+            "title",
+            "description",
+            "isCompleted",
+            "createdAt",
+            "completedAt"
+          ],
+          "return_type": "Todo"
+        },
+        {
+          "name": "toMap",
+          "description": "Converts Todo instance to a map representation for storage or transmission",
+          "parameters": null,
+          "return_type": "Map<String, dynamic>"
+        },
+        {
+          "name": "fromMap",
+          "description": "Factory constructor to create a Todo instance from a map, enabling easy deserialization",
+          "parameters": [
+            "map"
+          ],
+          "return_type": "Todo"
+        }
+      ],
+      "dependencies": [
+        "package:equatable/equatable.dart"
+      ]
+    },
+    {
+      "name": "lib/ui/views/todo/edit_todo_viewmodel.dart",
+      "description": "A ViewModel responsible for managing the editing of a single todo item, handling validation, updating todo details, and navigation between screens",
+      "class_diagram": "@startuml\nclass EditTodoViewModel {\n  -_todoService: TodoService\n  -_navigationService: NavigationService\n  +titleController: TextEditingController\n  +descriptionController: TextEditingController\n  +init(todoId: String)\n  +updateTodo()\n  -_validateInputs(): bool\n}\n@enduml",
+      "methods": [
+        {
+          "name": "init",
+          "description": "Loads a specific todo item by ID and populates the UI controllers with existing data",
+          "parameters": [
+            "todoId"
+          ],
+          "return_type": null
+        },
+        {
+          "name": "_validateInputs",
+          "description": "Validates title and description inputs, setting error messages if inputs are invalid",
+          "parameters": null,
+          "return_type": "bool"
+        },
+        {
+          "name": "updateTodo",
+          "description": "Updates the todo item with new title and description after validation, then navigates back to previous screen",
+          "parameters": null,
+          "return_type": "Future<void>"
+        }
+      ],
+      "dependencies": [
+        "stacked",
+        "stacked_services",
+        "todo_service.dart",
+        "todo.dart"
+      ]
+    },
+    {
+      "name": "lib/ui/dialogs/confirm_delete/confirm_delete_dialog.dart",
+      "description": "A reusable dialog component for confirming item deletion in a Flutter application, providing a standardized user interaction pattern for safe and deliberate data removal.",
+      "class_diagram": "@startuml\nclass ConfirmDeleteDialog {\n  +request: DialogRequest\n  +completer: Function(DialogResponse)\n  +builder(context, viewModel, child): Widget\n  +viewModelBuilder(context): ConfirmDeleteDialogModel\n}\n@enduml",
+      "methods": [
+        {
+          "name": "builder",
+          "description": "Constructs the visual layout and interaction logic for the delete confirmation dialog",
+          "parameters": [
+            "BuildContext",
+            "ConfirmDeleteDialogModel",
+            "Widget?"
+          ],
+          "return_type": "Widget"
+        },
+        {
+          "name": "viewModelBuilder",
+          "description": "Creates the associated view model for managing dialog state and logic",
+          "parameters": [
+            "BuildContext"
+          ],
+          "return_type": "ConfirmDeleteDialogModel"
+        }
+      ],
+      "dependencies": [
+        "flutter/material.dart",
+        "stacked/stacked.dart",
+        "stacked_services/stacked_services.dart",
+        "ui/common/app_colors.dart",
+        "ui/common/ui_helpers.dart"
+      ]
+    },
+    {
+      "name": "lib/ui/views/todo/create_todo_viewmodel.dart",
+      "description": "A ViewModel responsible for managing the creation of new todo items, handling user input validation and todo persistence in a Flutter application",
+      "class_diagram": "@startuml\nclass CreateTodoViewModel {\n  -_todoService: TodoService\n  -_navigationService: NavigationService\n  +titleController: TextEditingController\n  +descriptionController: TextEditingController\n  +saveTodo(): void\n  -_validateInputs(): bool\n}\n@enduml",
+      "methods": [
+        {
+          "name": "saveTodo",
+          "description": "Validates input, creates a new Todo item, saves it via TodoService, and navigates back",
+          "parameters": null,
+          "return_type": "Future<void>"
+        },
+        {
+          "name": "_validateInputs",
+          "description": "Checks that title and description are not empty, sets error states if invalid",
+          "parameters": null,
+          "return_type": "bool"
+        }
+      ],
+      "dependencies": [
+        "stacked",
+        "stacked_services",
+        "todo_apps_2/services/todo_service.dart",
+        "todo_apps_2/models/todo.dart"
+      ]
+    },
+    {
+      "name": "lib/services/todo_service.dart",
+      "description": "A reactive service for managing Todo items in a Flutter/Dart application, providing CRUD operations and state management for a todo list with real-time updates",
+      "class_diagram": "@startuml\nclass TodoService {\n  -List<Todo> _todos\n  +List<Todo> todos\n  +void addTodo(Todo todo)\n  +void updateTodo(Todo todo)\n  +void deleteTodo(String id)\n  +void toggleTodoComplete(String id)\n  +Todo? getTodoById(String id)\n}\n@enduml",
+      "methods": [
+        {
+          "name": "addTodo",
+          "description": "Add a new todo item to the list with error handling",
+          "parameters": [
+            "Todo todo"
+          ],
+          "return_type": null
+        },
+        {
+          "name": "updateTodo",
+          "description": "Update an existing todo item by its ID",
+          "parameters": [
+            "Todo todo"
+          ],
+          "return_type": null
+        },
+        {
+          "name": "deleteTodo",
+          "description": "Remove a todo item from the list by its ID",
+          "parameters": [
+            "String id"
+          ],
+          "return_type": null
+        },
+        {
+          "name": "toggleTodoComplete",
+          "description": "Toggle the completion status of a todo item, updating completion timestamp",
+          "parameters": [
+            "String id"
+          ],
+          "return_type": null
+        },
+        {
+          "name": "getTodoById",
+          "description": "Retrieve a specific todo item by its unique ID",
+          "parameters": [
+            "String id"
+          ],
+          "return_type": "Todo"
+        }
+      ],
+      "dependencies": [
+        "package:stacked/stacked.dart",
+        "todo_apps_2/models/todo.dart"
+      ]
     }
   ],
   "dependencies": [
@@ -864,7 +1170,7 @@
       "purpose": "Creating gaps in layouts"
     }
   ],
-  "sequence_diagram": "@startuml\nactor User\nparticipant main\nparticipant AppView\nparticipant StartupView\nparticipant StartupViewModel\nparticipant HomeView\nparticipant HomeViewModel\n\nUser -> main: Launch app\nmain -> AppView: Create and run\nAppView -> StartupView: Initialize\nStartupView -> StartupViewModel: Run startup logic\nStartupViewModel -> HomeView: Navigate on completion\nHomeView -> HomeViewModel: Initialize\nUser -> HomeView: Interact\nHomeView -> HomeViewModel: Handle user actions\nHomeViewModel -> HomeView: Update UI\nHomeViewModel -> DialogService: Show dialog\nHomeViewModel -> BottomSheetService: Show bottom sheet\n@enduml",
-  "state_management_flow": "The application uses the Stacked architecture for state management. Each view has a corresponding ViewModel that handles the business logic and state for that view. The ViewModels are responsible for updating the UI, interacting with services (e.g., DialogService, BottomSheetService), and managing the application's overall state. The app.locator.dart file sets up the necessary dependency injections, allowing the ViewModels to access the required services.",
-  "navigation_flow": "The application's navigation is managed using the Stacked Router, defined in app.router.dart. The main entry point is the AppView, which initializes the Stacked architecture and displays the StartupView. After the startup logic is completed, the StartupViewModel navigates to the HomeView. The HomeView allows the user to interact with the application, triggering updates to the HomeViewModel, which in turn updates the UI and can show dialogs or bottom sheets as needed."
+  "sequence_diagram": "@startuml\nactor User\nparticipant AppView\nparticipant CreateTodoView\nparticipant CreateTodoViewModel\nparticipant TodoService\nparticipant EditTodoView\nparticipant EditTodoViewModel\n\nUser -> AppView: Launch App\nUser -> CreateTodoView: Open Todo Creation\nCreateTodoView -> CreateTodoViewModel: Initialize\nUser -> CreateTodoView: Enter Todo Details\nCreateTodoViewModel -> TodoService: Validate and Save Todo\nTodoService --> CreateTodoViewModel: Todo Saved\nUser -> EditTodoView: Select Todo to Edit\nEditTodoView -> EditTodoViewModel: Load Todo Details\nEditTodoViewModel -> TodoService: Retrieve Todo\nUser -> EditTodoView: Modify Todo\nEditTodoViewModel -> TodoService: Update Todo\n@enduml",
+  "state_management_flow": "The application uses Stacked's reactive state management approach, with ViewModels serving as the primary state holders. Each view (CreateTodoView, EditTodoView) has a corresponding ViewModel that manages its state, handles user interactions, and communicates with services. The TodoService acts as a centralized state manager for todo items, providing methods for adding, updating, deleting, and retrieving todos. State changes trigger automatic UI updates through reactive programming principles.",
+  "navigation_flow": "Navigation is implemented using Stacked's routing mechanism, with predefined routes for todo creation and editing. The AppView serves as the main entry point, managing navigation between different views. Navigation between screens is handled through the NavigationService, which allows programmatic navigation with optional parameters. The routing system supports passing data between views and maintains a clean, type-safe navigation approach."
 }
